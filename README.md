@@ -1,4 +1,4 @@
-A modofied repo of priestc's python-etsy
+A modified repo of priestc's python-etsy
 Primarily modified for use in fetching information for buyers about sellers. 
 
 Why?
