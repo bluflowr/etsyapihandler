@@ -5,13 +5,19 @@ import logging
 import requests
 from oauth_hook import OAuthHook
 
+"""
+Customized library for etsy listing retrievals 
+Modified version of Python-Etsy package by Irma Kramer (bluflowr)
+Auth form original currently unchanged
+
+"""
 log = logging.getLogger(__name__)
 
-class Etsy(object):
+class Etsyobj(object):
     """
-    Represents the etsy API
+    Represents the etsy API - Update to url Jan 2015
     """
-    url_base = "http://openapi.etsy.com/v2"
+    url_base = "https://openapi.etsy.com/v2"
     
     class EtsyError(Exception):
         pass
@@ -22,7 +28,7 @@ class Etsy(object):
         self.consumer_secret = consumer_secret
         
         if sandbox:
-            self.url_base = "http://sandbox.openapi.etsy.com/v2"
+            self.url_base = "https://sandbox.openapi.etsy.com/v2"
         
         # generic authenticated oauth hook
         self.simple_oauth = OAuthHook(consumer_key=consumer_key, consumer_secret=consumer_secret)
@@ -58,9 +64,64 @@ class Etsy(object):
         response = self.execute(endpoint, **auth)
         return json.loads(response.text)
     
+    def get_user_favorites(self, user):
+        """
+        Get favorite sellers for a user, pass in a username or a user_id
+        """
+        endpoint = '/users/%s/favorites/users' % user
+        
+        auth = {}
+        if user == '__SELF__':
+            auth = {'oauth': self.full_oauth}
+            self.params = {} # etsy api ignores oauth if api_key is present in get params 
+            
+        response = self.execute(endpoint, **auth)
+        return json.loads(response.text)
+
+    def get_user_shops(self, user):
+        """
+        Get shops for a user, pass in a username or a user_id
+        """
+        endpoint = '/users/%s/shops' % user
+        
+        auth = {}
+        if user == '__SELF__':
+            auth = {'oauth': self.full_oauth}
+            self.params = {} # etsy api ignores oauth if api_key is present in get params 
+            
+        response = self.execute(endpoint, **auth)
+        return json.loads(response.text)
+
+    def get_shop_listings(self, user):
+        """
+        Get shop listings for a shop, pass in a shopname or a shop_id
+        """
+        endpoint = '/shops/%s/listings/active' % user
+        
+        auth = {}
+        if user == '__SELF__':
+            auth = {'oauth': self.full_oauth}
+            self.params = {} # etsy api ignores oauth if api_key is present in get params 
+            
+        response = self.execute(endpoint, **auth)
+        return json.loads(response.text)
+
+    def get_image_for_listing(self, listing_id):
+        endpoint = '/listings/%s/images' % listing_id
+        response = self.execute(endpoint)
+        return json.loads(response.text)
+
+    def get_listing(self, listing_id):
+        """
+        Show a listing on the site.
+        """
+        endpoint = '/listings/%s'  % listing_id
+        response = self.execute(endpoint)
+        return json.loads(response.text)
+        
     def find_user(self, keywords):
         """
-        Search for a user given the 
+        Search for a user. 
         """
         endpoint = '/users'
         self.params['keywords'] = keywords
@@ -119,4 +180,5 @@ class Etsy(object):
             e = response.text
             code = response.status_code
             raise self.EtsyError('API returned %s response: %s' % (code, e))
-        return response
+        else:
+            return response
