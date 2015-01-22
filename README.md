@@ -1,3 +1,6 @@
+A modofied repo of priestc's python-etsy
+Primarily modified for use in fetching information for buyers about sellers. 
+
 Why?
 ====
 
@@ -8,7 +11,7 @@ Usage
 
 Initialization
 --------------
-    >>> from etsy import Etsy
+    >>> from etsyapihandler import Etsy
     >>> e = Etsy(consumer_key, consumer_secret) # gotten from signing up at etsy.com/developers
 
 Get info for user
